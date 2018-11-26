@@ -477,7 +477,8 @@ func (idl *IDLFolder) getIDLFile(in string, out *IDLFile)  {
 		os.Exit(1)
 	}
 
-	dyProd := "dy-" + idl.prod
+	//dyProd := "dy-" + idl.prod
+	dyProd := idl.prod
 
 	impss := re_import.FindAllStringSubmatch(string(body), -1)
 	for _, imps := range impss {
