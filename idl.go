@@ -19,6 +19,8 @@ var (
 	idlWorkDir string
 	srvDir string
 	re_import *regexp.Regexp = regexp.MustCompile(`(?sm)import\s+\"([\w\./_\-]*)\";`)
+	re_comments *regexp.Regexp = regexp.MustCompile("(?sm)//.*?$")
+	re_multicomts *regexp.Regexp = regexp.MustCompile(`(?sm)/\*.*?\*/`)
 )
 
 type IDLFolder struct {
@@ -478,6 +480,12 @@ func (idl *IDLFolder) extract(in string) {
 	}
 }
 
+func removeComments(content string) string {
+	content = re_comments.ReplaceAllString(content, "")
+	content = re_multicomts.ReplaceAllString(content, "")
+	return content
+}
+
 func (idl *IDLFolder) getIDLFile(in string, out *IDLFile)  {
 	abs := filepath.Join(idlDir, filepath.ToSlash(in))
 
@@ -487,10 +495,12 @@ func (idl *IDLFolder) getIDLFile(in string, out *IDLFile)  {
 		os.Exit(1)
 	}
 
+	content := removeComments(string(body))
+
 	//dyProd := "dy-" + idl.prod
 	dyProd := idl.prod
 
-	impss := re_import.FindAllStringSubmatch(string(body), -1)
+	impss := re_import.FindAllStringSubmatch(content, -1)
 	for _, imps := range impss {
 		//fmt.Println("imps:", imps[1])
 		ss := strings.Split(imps[1], "/")
