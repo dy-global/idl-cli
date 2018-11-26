@@ -63,7 +63,7 @@ func (p *ProdIDLFolder) compile() {
 		m += fmt.Sprintf("M%s=%s,", orig, rep)
 	}
 	m = strings.TrimRight(m, ",")
-	fmt.Println("m :", m)
+	//fmt.Println("m :", m)
 
 	args := []string{
 		"-I.",
@@ -76,7 +76,6 @@ func (p *ProdIDLFolder) compile() {
 	}
 	cmd := exec.Command("protoc", args...)
 	fmt.Println(cmd.Args)
-
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -98,7 +97,7 @@ type SubSysIDLFolder struct {
 func (s *SubSysIDLFolder) compile(prod string) {
 	defer func() {
 		for _, mod := range s.ModMap {
-			fmt.Println("prod:", prod, "sys:", s.Name)
+			//fmt.Println("prod:", prod, "sys:", s.Name)
 
 			mod.compile(prod, s.Name)
 		}
@@ -123,7 +122,7 @@ func (s *SubSysIDLFolder) compile(prod string) {
 		m += fmt.Sprintf("M%s=%s,", orig, rep)
 	}
 	m = strings.TrimRight(m, ",")
-	fmt.Println("m :", m)
+	//fmt.Println("m :", m)
 
 	args := []string{
 		"-I.",
@@ -158,7 +157,7 @@ func (mod *ModIDLFolder) compile(prod, sys string) {
 		return
 	}
 
-	fmt.Println("cur dir :", filepath.Join(idlWorkDir, prod, sys, mod.Name))
+	//fmt.Println("cur dir :", filepath.Join(idlWorkDir, prod, sys, mod.Name))
 	os.Chdir(filepath.Join(idlWorkDir, prod, sys, mod.Name))
 
 	var m string
@@ -174,7 +173,7 @@ func (mod *ModIDLFolder) compile(prod, sys string) {
 		m += fmt.Sprintf("M%s=%s,", orig, rep)
 	}
 	m = strings.TrimRight(m, ",")
-	fmt.Println("m :", m)
+	//fmt.Println("m :", m)
 
 	args := []string{
 		"-I.",
@@ -282,7 +281,7 @@ func (idl *IDLFolder) Extract() {
 		idl.extract(dep)
 	}
 
-	idl.snapshot()
+	//idl.snapshot()
 
 	idl.copyFile()
 
@@ -338,7 +337,7 @@ func (idl *IDLFolder) copyFile() {
 		dst := filepath.Join(idlWorkDir, filepath.FromSlash(f))
 		//dstDir := filepath.Dir(dst)
 		os.MkdirAll(filepath.Dir(dst), 0777)
-		fmt.Println(src, dst)
+		//fmt.Println(src, dst)
 		if err := copyFile(src, dst); err != nil {
 			fmt.Println("copy file error:", err)
 			os.Exit(1)
@@ -482,7 +481,7 @@ func (idl *IDLFolder) getIDLFile(in string, out *IDLFile)  {
 
 	impss := re_import.FindAllStringSubmatch(string(body), -1)
 	for _, imps := range impss {
-		fmt.Println("imps:", imps[1])
+		//fmt.Println("imps:", imps[1])
 		ss := strings.Split(imps[1], "/")
 
 		slen := len(ss)
@@ -555,9 +554,11 @@ func (idl *IDLFolder) PrepareEnv() {
 			os.Exit(1)
 		}
 	} else {
-		if err1 := pullIDL(); err1 != nil {
-			os.RemoveAll(idlDir)
-			cloneIDL()
+		if update {
+			if err1 := pullIDL(); err1 != nil {
+				os.RemoveAll(idlDir)
+				cloneIDL()
+			}
 		}
 	}
 
