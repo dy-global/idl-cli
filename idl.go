@@ -48,7 +48,8 @@ func (p *ProdIDLFolder) compile() {
 		return
 	}
 
-	os.Chdir(filepath.Join(idlWorkDir, p.Name))
+	wdDir := filepath.Join(idlWorkDir, p.Name)
+	os.Chdir(wdDir)
 
 	var m string
 	mMap := map[string]string{}
@@ -75,7 +76,7 @@ func (p *ProdIDLFolder) compile() {
 		args = append(args, f)
 	}
 	cmd := exec.Command("protoc", args...)
-	fmt.Println(cmd.Args)
+	fmt.Println(wdDir, ": ", cmd.Args)
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -106,8 +107,8 @@ func (s *SubSysIDLFolder) compile(prod string) {
 	if len(s.Files) == 0 {
 		return
 	}
-
-	os.Chdir(filepath.Join(idlWorkDir, prod, s.Name))
+	wdDir := filepath.Join(idlWorkDir, prod, s.Name)
+	os.Chdir(wdDir)
 
 	var m string
 	mMap := map[string]string{}
@@ -134,7 +135,7 @@ func (s *SubSysIDLFolder) compile(prod string) {
 		args = append(args, f)
 	}
 	cmd := exec.Command("protoc", args...)
-	fmt.Println(cmd.Args)
+	fmt.Println(wdDir, ": ", cmd.Args)
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -158,7 +159,8 @@ func (mod *ModIDLFolder) compile(prod, sys string) {
 	}
 
 	//fmt.Println("cur dir :", filepath.Join(idlWorkDir, prod, sys, mod.Name))
-	os.Chdir(filepath.Join(idlWorkDir, prod, sys, mod.Name))
+	wdDir := filepath.Join(idlWorkDir, prod, sys, mod.Name)
+	os.Chdir(wdDir)
 
 	var m string
 	mMap := map[string]string{}
@@ -186,7 +188,7 @@ func (mod *ModIDLFolder) compile(prod, sys string) {
 		args = append(args, f)
 	}
 	cmd := exec.Command("protoc", args...)
-	fmt.Println(cmd.Args)
+	fmt.Println(wdDir, ": ", cmd.Args)
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -304,6 +306,16 @@ func (idl *IDLFolder) Transfer() {
 }
 
 func (idl *IDLFolder) compile() {
+	defer func() {
+		for _, prod := range idl.ProdMap {
+			prod.compile()
+		}
+	}()
+
+	if len(idl.Files) == 0 {
+		return
+	}
+
 	os.Chdir(idlWorkDir)
 
 	args := []string{
@@ -315,7 +327,7 @@ func (idl *IDLFolder) compile() {
 		args = append(args, f)
 	}
 	cmd := exec.Command("protoc", args...)
-	fmt.Println(cmd.Args)
+	fmt.Println(idlWorkDir, ": ", cmd.Args)
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -324,9 +336,7 @@ func (idl *IDLFolder) compile() {
 		os.Exit(1)
 	}
 
-	for _, prod := range idl.ProdMap {
-		prod.compile()
-	}
+
 }
 
 func (idl *IDLFolder) copyFile() {
@@ -531,6 +541,8 @@ func (idl *IDLFolder) LoadConfig(conf string) {
 		fmt.Printf("unmarshal config '%s' error: %v\n", conf, err)
 		os.Exit(1)
 	}
+
+	//fmt.Printf("conf %+v\n", idl.conf)
 }
 
 func (idl *IDLFolder) PrepareEnv() {
