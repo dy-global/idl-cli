@@ -587,6 +587,7 @@ func (idl *IDLFolder) PrepareEnv() {
 
 	// 创建 idl-work
 	idlWorkDir = filepath.Join(workDir, "idl-work")
+	os.RemoveAll(idlWorkDir)
 	os.MkdirAll(idlWorkDir, 0777)
 
 	//os.MkdirAll(filepath.Join(idlWorkDir, "idl"), 0777)
