@@ -563,7 +563,7 @@ func (idl *IDLFolder) PrepareEnv() {
 	}
 
 	home := u.HomeDir
-	workDir = filepath.Join(home, ".dy")
+	workDir = filepath.Join(home, "dy")
 
 	os.MkdirAll(workDir, 0777)
 	// 下载idl仓库
